@@ -2,10 +2,11 @@
 name = "rust-constantine"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+links = "constantine_ethereum_bls_signatures"
+build = "build.rs"
 
 [dependencies]
 
 [build-dependencies]
-bindgen = "0.53.1"
+bindgen = {version = "0.65.1" }
+# bindgen = { git = "https://github.com/rust-lang/rust-bindgen" , rev = "0de11f0a521611ac8738b7b01d19dddaf3899e66" }
