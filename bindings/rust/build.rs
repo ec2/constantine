@@ -3,6 +3,7 @@ extern crate bindgen;
 use bindgen::CargoCallbacks;
 use std::env;
 use std::path::PathBuf;
+use std::process::Command;
 
 fn main() {
     // This is the directory where the library is located.
@@ -15,6 +16,12 @@ fn main() {
     // This is the path to the `c` headers file.
     let headers_path = libdir_path.join("../include/constantine_ethereum_bls_signatures.h");
     let headers_path_str = headers_path.to_str().expect("Path is not a valid string");
+
+    // TODO: Build Nim bindings from scratch, so that we can target different architectures and bare metal
+    Command::new("nimble")
+        .arg("bindings")
+        .output()
+        .expect("failed to build bindings");
 
     // Tell cargo to look for shared libraries in the specified directory
     println!(
