@@ -81,7 +81,11 @@ pub fn fast_aggregate_verify(
 ) -> Result<(), String> {
     unsafe {
         ctt_eth_bls_init_NimMain();
-        let pks = public_keys.iter().map(|x| x.0).collect::<Vec<_>>();
+        // let pks = public_keys.iter().map(|x| x.0).collect::<Vec<_>>();
+        let pks = std::slice::from_raw_parts(
+            public_keys.as_ptr() as *const ctt_eth_bls_pubkey,
+            public_keys.len(),
+        );
         match ctt_eth_bls_fast_aggregate_verify(
             pks.as_ptr(),
             pks.len() as isize,
