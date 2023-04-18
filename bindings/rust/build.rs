@@ -19,6 +19,7 @@ fn main() {
 
     // TODO: Build Nim bindings from scratch, so that we can target different architectures and bare metal
     Command::new("nimble")
+        .current_dir(libdir_path.join("../"))
         .arg("bindings")
         .output()
         .expect("failed to build bindings");
