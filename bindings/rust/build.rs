@@ -26,8 +26,13 @@ fn main() {
         "Current working directory: {:?}",
         cmd.get_current_dir().unwrap()
     );
+    //  cmd.stdout(Stdio::inherit())
+    //     .arg("bindings")
+    //     .output()
+    //     .expect("failed to build bindings");
+
     cmd.stdout(Stdio::inherit())
-        .arg("bindings")
+        .arg("mipsbindings")
         .output()
         .expect("failed to build bindings");
 
@@ -40,10 +45,10 @@ fn main() {
     // Tell cargo to tell rustc to link our library. Cargo will
     // automatically know it must look for a `lib<blah>.a` file.
     println!(
-        "cargo:rustc-link-lib=static:-bundle,+whole-archive=constantine_ethereum_bls_signatures"
+        "cargo:rustc-link-lib=static:-bundle,+whole-archive=constantine_ethereum_bls_signatures_mips"
     );
     println!(
-        "cargo:rerun-if-changed={}/libconstantine_ethereum_bls_signatures.a",
+        "cargo:rerun-if-changed={}/libconstantine_ethereum_bls_signatures_mips.a",
         libdir_path.to_str().unwrap()
     );
 
