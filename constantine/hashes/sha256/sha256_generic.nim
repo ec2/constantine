@@ -93,7 +93,7 @@ template s1(x: uint32): uint32 =
 # Message schedule
 # ------------------------------------------------
 
-template u32BE(blob: array[4, byte]): uint32 =
+template u32BE(blob: ptr array[4, byte]): uint32 =
   ## Interpret a data blob as a big-endian uint32
   when nimvm:
     (blob[0].uint32 shl 24) or (blob[1].uint32 shl 16) or (blob[2].uint32 shl 8) or blob[3].uint32
@@ -104,7 +104,7 @@ template u32BE(blob: array[4, byte]): uint32 =
       cast[uint32](blob)
 
 template getU32at(msg: ptr UncheckedArray[byte], pos: SomeInteger): uint32 =
-  u32BE(cast[ptr array[4, byte]](msg[pos].addr)[])
+  u32BE(cast[ptr array[4, byte]](msg[pos].addr))
 
 # State updates
 # ------------------------------------------------

@@ -159,6 +159,49 @@ task bindings, "Generate Constantine bindings":
   genStaticBindings(kProtocol, "ethereum_bls_signatures", "ctt_eth_bls_init_")
   genDynamicBindings(kProtocol, "ethereum_bls_signatures", "ctt_eth_bls_init_")
 
+
+proc genBareMetalStaticBindings(bindingsKind: BindingsKind, bindingsName, prefixNimMain: string) =
+  proc compile(libName: string, flags = "") =
+    echo "Compiling static library:  lib/" & libName
+    exec "nim c " &
+        " --noMain --app:staticLib " &
+        flags &
+        " -d:danger --opt:size -d:release --passC:-ferror-limit=20 " &
+        " --threads=off -d:Constantine32 " & # Is Constantine32 needed? We already are building for 32 bit mips so...
+        " --panics:on -d:noSignalHandler " & # How does this interop with Rust if we use our own panic handler in Rust?
+        " --mm:none -d:useMalloc " & # I wonder if I can pass Rust's global allocator into here? 
+        " --gc=none " &
+        " --verbosity:0  -d:posix --hints:off --warnings:off " & # I don't understand why i need posix here... why is the times package needed? pure/times.nim(1226, 22) Error: undeclared identifier: 'Tm' 
+        " --passC:-fno-semantic-interposition " &
+        " --passC:-falign-functions=64 --passC:--target=mips-none-gnu " & # Feels a little weird I need to tell clang AND nim im building to bare metal mips...
+        " --os:any " & 
+        " --cc:clang " &
+        " --cpu:mips -d:CttASM=false " & # This builds with CttASM=true as well... Should I even configure it?
+        " --nimMainPrefix:" & prefixNimMain &
+        " --out:" & libName & " --outdir:lib " &
+        (block:
+          case bindingsKind
+          of kCurve:
+            " --nimcache:nimcache/bindings_curves/" & bindingsName & "_mips" &
+            " bindings_generators/" & bindingsName & ".nim"
+          of kProtocol:
+            " --nimcache:nimcache/bindings_protocols/" & bindingsName & "_mips" &
+            " constantine/" & bindingsName & ".nim"
+        )
+        
+  let bindingsName = block:
+    case bindingsKind
+    of kCurve: bindingsName
+    of kProtocol: "constantine_" & bindingsName
+
+  compile "lib" & bindingsName & "_mips.a"
+
+
+
+task mipsbindings, "Generate Constatine bindings for MIPS":
+  genBareMetalStaticBindings(kCurve, "constantine_bls12_381", "ctt_bls12381_init_")
+  genBareMetalStaticBindings(kProtocol, "ethereum_bls_signatures", "ctt_eth_bls_init_")
+
 proc testLib(path, testName, libName: string, useGMP: bool) =
   let dynlibName = if defined(windows): libName & ".dll"
                    elif defined(macosx): "lib" & libName & ".dylib"
