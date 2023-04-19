@@ -62,6 +62,10 @@ fn nim_compile<'a>(target_os: &'a str, _target_arch: &'a str) -> Command {
             .arg("-d:CttASM=false") // TODO: apparently this isnt needed, but will leave her efor now
             .arg("-d:Constantine32") // TODO: also not needed, but will leave in
             .arg("-d:useMalloc")
+            .arg("--threads=off")
+            .arg("--mm:none")
+            .arg("--gc:none")
+            .arg("--passC:--target=mips-none-gnu")
             .arg("--cc:clang"); // apparently this is faster, but need to investigate if we can have gcc for rust and clang for nim
     }
     release_build_options(&mut output).arg("../../constantine/ethereum_bls_signatures.nim");
