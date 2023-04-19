@@ -171,7 +171,7 @@ proc genBareMetalStaticBindings(bindingsKind: BindingsKind, bindingsName, prefix
         " --panics:on -d:noSignalHandler " & # How does this interop with Rust if we use our own panic handler in Rust?
         " --mm:none -d:useMalloc " & # I wonder if I can pass Rust's global allocator into here? 
         " --gc=none " &
-        " --verbosity:0  -d:posix --hints:off --warnings:off " & # I don't understand why i need posix here... why is the times package needed? pure/times.nim(1226, 22) Error: undeclared identifier: 'Tm' 
+        " --verbosity:0  -d:posix -d:bits --hints:off --warnings:off " & # I don't understand why i need posix here... why is the times package needed? pure/times.nim(1226, 22) Error: undeclared identifier: 'Tm' 
         " --passC:-fno-semantic-interposition " &
         " --passC:-falign-functions=64 --passC:--target=mips-none-gnu " & # Feels a little weird I need to tell clang AND nim im building to bare metal mips...
         " --os:any " & 
