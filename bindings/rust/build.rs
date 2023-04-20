@@ -62,6 +62,7 @@ fn nim_compile<'a>(target_os: &'a str, _target_arch: &'a str) -> Command {
             .arg("-d:CttASM=false") // TODO: apparently this isnt needed, but will leave her efor now
             .arg("-d:Constantine32") // TODO: also not needed, but will leave in
             .arg("-d:useMalloc")
+            .arg("--passC:--sysroot=/usr/mips-linux-gnu/")
             .arg("--threads=off")
             .arg("--mm:none")
             .arg("--gc:none")
