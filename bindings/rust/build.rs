@@ -53,7 +53,6 @@ fn nim_compile<'a>(target_os: &'a str, _target_arch: &'a str) -> Command {
         output
             .arg("--os:any") // assumes any os, but also works for bare metal, i believe
             .arg("-d:posix") // needed this to build for --os:any
-            //    .arg("-d:bits") // needed this to build for --os:any
             .arg("--cpu:mips") // TODO: Make this generic for other cpus
             .arg(format!(
                 "--out:{}",
@@ -62,7 +61,8 @@ fn nim_compile<'a>(target_os: &'a str, _target_arch: &'a str) -> Command {
             .arg("-d:CttASM=false") // TODO: apparently this isnt needed, but will leave her efor now
             .arg("-d:Constantine32") // TODO: also not needed, but will leave in
             .arg("-d:useMalloc")
-            .arg("--passC:--sysroot=/usr/mips-linux-gnu/")
+            .arg("--passC:-I /usr/mips-linux-gnu/include")
+            .arg("--passC:--verbose")
             .arg("--threads=off")
             .arg("--mm:none")
             .arg("--gc:none")
