@@ -60,7 +60,8 @@ fn nim_compile<'a>(target_os: &'a str, _target_arch: &'a str) -> Command {
             .arg("--threads=off")
             .arg("--mm:none")
             .arg("--gc:none")
-            .arg("--passC:--target=mips-none-gnu")
+            .arg("--passC:--target=mips-unknown-none")
+            .arg("--passC:-march=mips32r2")
             .arg("--cc:clang"); // apparently this is faster, but need to investigate if we can have gcc for rust and clang for nim
     }
     release_build_options(&mut output).arg("../../constantine/ethereum_bls_signatures.nim");
