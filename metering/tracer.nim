@@ -7,9 +7,12 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import
-  std/[macros, times, monotimes],
+  std/[macros],
   ../benchmarks/platforms
-
+when not defined(BareMetal) or isMainModule:
+  import
+    std/[times, monotimes]
+    
 # ############################################################
 #
 #                     Trace operations

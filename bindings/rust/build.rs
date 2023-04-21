@@ -27,11 +27,8 @@ fn nim_compile<'a>(target_os: &'a str, _target_arch: &'a str) -> Command {
         .arg("c")
         .arg("--nomain")
         .arg("--app:staticLib")
-        // .arg("--noLinking") // we'll see about that...
-        // .arg("--genScript:on") // we'll see about that...
-        .arg("-d:release") // added that myself
         .arg("--nimMainPrefix:ctt_eth_bls_init_") // make this paramterized
-        .arg("--nimcache:nimcache/constantine_ethereum_bls_signatures"); // i think this is right...
+        .arg("--nimcache:nimcache/constantine_ethereum_bls_signatures");
 
     if target_os.ne("none") {
         let lib_path = out_path.join("libconstantine_ethereum_bls_signatures.a");
@@ -52,15 +49,12 @@ fn nim_compile<'a>(target_os: &'a str, _target_arch: &'a str) -> Command {
         let lib_path = out_path.join("libconstantine_ethereum_bls_signatures.a");
         output
             .arg("--os:any") // assumes any os, but also works for bare metal, i believe
-            .arg("-d:posix") // needed this to build for --os:any
+            .arg("-d:BareMetal")
             .arg("--cpu:mips") // TODO: Make this generic for other cpus
             .arg(format!(
                 "--out:{}",
                 lib_path.to_str().expect("lib_path err")
             ))
-            .arg("-d:CttASM=false") // TODO: apparently this isnt needed, but will leave her efor now
-            .arg("-d:Constantine32") // TODO: also not needed, but will leave in
-            .arg("-d:useMalloc")
             .arg("--passC:-I /usr/mips-linux-gnu/include")
             .arg("--passC:--verbose")
             .arg("--threads=off")
