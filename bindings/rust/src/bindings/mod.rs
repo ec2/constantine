@@ -1,19 +1,20 @@
 use core::mem::MaybeUninit;
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
-
+use alloc::string::{String, ToString};
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct PublicKey(ctt_eth_bls_pubkey);
 
 impl PublicKey {
-    pub fn from_bytes(k: &[u8]) -> Self {
+    pub fn from_bytes(k: &[u8]) -> Result<Self, String> {
         let mut out = MaybeUninit::uninit();
         unsafe {
-            match ctt_eth_bls_deserialize_pubkey_compressed(out.as_mut_ptr(), k.as_ptr()) as u8 {
-                0 => {}
-                _ => panic!("failed to deserialize public key"),
+            let code = ctt_eth_bls_deserialize_pubkey_compressed(out.as_mut_ptr(), k.as_ptr());
+            if code == ctt_eth_bls_status::cttBLS_Success {
+                Ok(PublicKey(out.assume_init()))
+            } else {
+                Err(format_args!("{:?}", code).to_string())
             }
-            PublicKey(out.assume_init())
         }
     }
 
@@ -33,14 +34,15 @@ impl From<ctt_eth_bls_pubkey> for PublicKey {
 pub struct Signature(ctt_eth_bls_signature);
 
 impl Signature {
-    pub fn from_bytes(s: &[u8]) -> Self {
+    pub fn from_bytes(s: &[u8]) -> Result<Self, String> {
         let mut out = MaybeUninit::uninit();
         unsafe {
-            match ctt_eth_bls_deserialize_signature_compressed(out.as_mut_ptr(), s.as_ptr()) as u8 {
-                0 => {}
-                _ => panic!("failed to deserialize signature"),
+            let code = ctt_eth_bls_deserialize_signature_compressed(out.as_mut_ptr(), s.as_ptr());
+            if code == ctt_eth_bls_status::cttBLS_Success {
+                Ok(Signature(out.assume_init()))
+            } else {
+                Err(format_args!("{:?}", code).to_string())
             }
-            Signature(out.assume_init())
         }
     }
 
@@ -61,15 +63,16 @@ pub fn verify_signature(
     signature: &Signature,
 ) -> Result<(), String> {
     unsafe {
-        match ctt_eth_bls_verify(
+        let code = ctt_eth_bls_verify(
             &public_key.0 as *const ctt_eth_bls_pubkey,
             msg.as_ptr(),
             msg.len() as isize,
             &signature.0 as *const ctt_eth_bls_signature,
-        ) as u8
-        {
-            0 => Ok(()),
-            e => Err(format!("failed to verify signature: {:?}", e)),
+        );
+        if code == ctt_eth_bls_status::cttBLS_Success {
+            Ok(())
+        } else {
+            Err(format_args!("failed to verify signature: {:?}", code).to_string())
         }
     }
 }
@@ -82,20 +85,21 @@ pub fn fast_aggregate_verify(
     unsafe {
         ctt_eth_bls_init_NimMain();
         // let pks = public_keys.iter().map(|x| x.0).collect::<Vec<_>>();
-        let pks = std::slice::from_raw_parts(
+        let pks = core::slice::from_raw_parts(
             public_keys.as_ptr() as *const ctt_eth_bls_pubkey,
             public_keys.len(),
         );
-        match ctt_eth_bls_fast_aggregate_verify(
+        let code = ctt_eth_bls_fast_aggregate_verify(
             pks.as_ptr(),
             pks.len() as isize,
             msg.as_ptr(),
             msg.len() as isize,
             &signature.0 as *const ctt_eth_bls_signature,
-        ) as u8
-        {
-            0 => Ok(()),
-            e => Err(format!("failed to verify signature: {:?}", e)),
+        );
+        if code == ctt_eth_bls_status::cttBLS_Success {
+            Ok(())
+        } else {
+            Err(format_args!("{:?}", code).to_string())
         }
     }
 }

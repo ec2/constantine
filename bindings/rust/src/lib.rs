@@ -2,7 +2,9 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![feature(vec_into_raw_parts)]
-#![feature(restricted_std)]
+#![no_std]
 
 mod bindings;
 pub use bindings::*;
+
+extern crate alloc;
